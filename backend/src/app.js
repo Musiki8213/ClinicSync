@@ -23,11 +23,24 @@ function isAllowedDevOrigin(origin) {
   return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 }
 
+/** Vercel production and preview deployments */
+function isAllowedVercelOrigin(origin) {
+  return /^https:\/\/[\w.-]+\.vercel\.app$/.test(origin);
+}
+
+function isOriginAllowed(origin) {
+  if (!origin) return true;
+  return (
+    allowedOrigins.has(origin) ||
+    isAllowedDevOrigin(origin) ||
+    isAllowedVercelOrigin(origin)
+  );
+}
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.has(origin) || isAllowedDevOrigin(origin)) {
+      if (isOriginAllowed(origin)) {
         return callback(null, true);
       }
       return callback(null, false);

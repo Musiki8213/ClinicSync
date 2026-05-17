@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { isAxiosError } from 'axios'
+import { apiErrorMessage } from '@/lib/apiErrors'
 
 export default function SignupPage() {
   const { register } = useAuth()
@@ -36,13 +36,11 @@ export default function SignupPage() {
       })
       navigate('/app/dashboard', { replace: true })
     } catch (err) {
-      const desc =
-        isAxiosError(err) && !err.response
-          ? 'Cannot reach the API. Start MongoDB, run the backend (npm run dev in backend/), and use Vite dev or preview so /api is proxied—or set VITE_API_URL in frontend/.env.'
-          : isAxiosError(err)
-            ? (err.response?.data as { message?: string })?.message
-            : undefined
-      toast({ title: 'Signup failed', description: desc || 'Try again', variant: 'destructive' })
+      toast({
+        title: 'Signup failed',
+        description: apiErrorMessage(err),
+        variant: 'destructive',
+      })
     } finally {
       setSubmitting(false)
     }

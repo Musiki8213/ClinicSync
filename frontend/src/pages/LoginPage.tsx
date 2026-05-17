@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { isAxiosError } from 'axios'
+import { apiErrorMessage } from '@/lib/apiErrors'
 
 const PORTAL_COPY: Record<
   LoginPortalRole,
@@ -76,13 +76,11 @@ export default function LoginPage({ portal }: LoginPageProps) {
       toast({ title: 'Welcome back', description: `Signed in as ${user.name}` })
       navigate(from, { replace: true })
     } catch (err) {
-      const desc =
-        isAxiosError(err) && !err.response
-          ? 'Cannot reach the API. Start MongoDB, run the backend (npm run dev in backend/), and use Vite dev or preview so /api is proxied—or set VITE_API_URL in frontend/.env.'
-          : isAxiosError(err)
-            ? (err.response?.data as { message?: string })?.message
-            : undefined
-      toast({ title: 'Login failed', description: desc || 'Check your credentials', variant: 'destructive' })
+      toast({
+        title: 'Login failed',
+        description: apiErrorMessage(err, 'Check your credentials'),
+        variant: 'destructive',
+      })
     } finally {
       setSubmitting(false)
     }

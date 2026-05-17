@@ -1,0 +1,23 @@
+# Deploy the Express API on Render (https://render.com).
+# After deploy, set VITE_API_URL on Vercel to: https://<your-service>.onrender.com/api
+services:
+  - type: web
+    name: clinicsync-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: '20'
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        sync: false
