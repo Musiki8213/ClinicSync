@@ -92,6 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const { data } = await api.post<{ token: string; user: AuthUserResponse }>('/auth/login', { email, password })
+    if (!data?.token || !data?.user) {
+      throw new Error('Invalid response from server — check BACKEND_URL on Vercel points to your API.')
+    }
     localStorage.setItem(TOKEN_KEY, data.token)
     setToken(data.token)
     const mapped = mapAuthUser(data.user)
@@ -102,6 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (form: { name: string; email: string; password: string; age?: number; gender?: string }) => {
       const { data } = await api.post<{ token: string; user: AuthUserResponse }>('/auth/register', form)
+      if (!data?.token || !data?.user) {
+        throw new Error('Invalid response from server — check BACKEND_URL on Vercel points to your API.')
+      }
       localStorage.setItem(TOKEN_KEY, data.token)
       setToken(data.token)
       setUser(mapAuthUser(data.user))

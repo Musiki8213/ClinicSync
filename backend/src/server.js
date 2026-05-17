@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import app from './app.js';
 import { connectDB } from './config/db.js';
-import { ensureDemoAdmin, ensureDemoDoctors } from './bootstrapDemo.js';
+import { ensureDemoAdmin, ensureDemoDoctors, ensureDemoPatients } from './bootstrapDemo.js';
 
 dotenv.config();
 
@@ -19,6 +19,7 @@ async function start() {
   await connectDB();
   await ensureDemoAdmin();
   await ensureDemoDoctors();
+  await ensureDemoPatients();
   app.listen(PORT, () => {
     console.log(`ClinicSync API listening on port ${PORT}`);
   });

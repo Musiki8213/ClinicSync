@@ -54,16 +54,12 @@ export default function LoginPage({ portal }: LoginPageProps) {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  function fillDemo(accountEmail: string, accountPassword: string) {
+  async function signInWith(accountEmail: string, accountPassword: string) {
     setEmail(accountEmail)
     setPassword(accountPassword)
-  }
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
     setSubmitting(true)
     try {
-      const user = await login(email, password)
+      const user = await login(accountEmail, accountPassword)
       if (user.role !== copy.expectedRole) {
         clearSession()
         toast({
@@ -84,6 +80,11 @@ export default function LoginPage({ portal }: LoginPageProps) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    await signInWith(email, password)
   }
 
   return (
@@ -144,7 +145,8 @@ export default function LoginPage({ portal }: LoginPageProps) {
                       variant="ghost"
                       size="sm"
                       className="h-auto w-full justify-start rounded-lg px-2 py-1.5 text-left text-xs font-normal text-muted-foreground"
-                      onClick={() => fillDemo(p.email, DEMO_PATIENT_PASSWORD)}
+                      onClick={() => void signInWith(p.email, DEMO_PATIENT_PASSWORD)}
+                      disabled={submitting}
                     >
                       <span className="font-medium text-foreground">{p.name}</span>
                       <span className="ml-1">— {p.email}</span>
@@ -162,7 +164,8 @@ export default function LoginPage({ portal }: LoginPageProps) {
                       variant="ghost"
                       size="sm"
                       className="h-auto w-full justify-start rounded-lg px-2 py-1.5 text-left text-xs font-normal text-muted-foreground"
-                      onClick={() => fillDemo(d.email, DEMO_DOCTOR_PASSWORD)}
+                      onClick={() => void signInWith(d.email, DEMO_DOCTOR_PASSWORD)}
+                      disabled={submitting}
                     >
                       <span className="font-medium text-foreground">{d.name}</span>
                       <span className="ml-1">— {d.email}</span>
@@ -177,7 +180,8 @@ export default function LoginPage({ portal }: LoginPageProps) {
                 variant="secondary"
                 size="sm"
                 className="h-auto w-full justify-start rounded-lg px-3 py-2 text-left text-xs font-normal text-muted-foreground"
-                onClick={() => fillDemo(DEMO_ADMIN.email, DEMO_ADMIN.password)}
+                onClick={() => void signInWith(DEMO_ADMIN.email, DEMO_ADMIN.password)}
+                disabled={submitting}
               >
                 <span className="font-medium text-foreground">Clinic Admin</span>
                 <span className="ml-1">— {DEMO_ADMIN.email}</span>

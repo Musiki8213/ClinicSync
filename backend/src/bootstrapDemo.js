@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { User } from './models/User.js';
+import { Patient } from './models/Patient.js';
 import { Doctor } from './models/Doctor.js';
 import { Appointment } from './models/Appointment.js';
 import {
@@ -12,9 +13,19 @@ import {
 const DEMO_ADMIN_EMAIL = 'admin@clinicsync.com';
 const DEMO_ADMIN_PASSWORD = 'Admin123!';
 
+const DEMO_PATIENTS = [
+  { name: 'Alex Morgan', email: 'alex@clinicsync.com', age: 34, gender: 'male' },
+  { name: 'Jordan Lee', email: 'jordan@clinicsync.com', age: 28, gender: 'female' },
+];
+const DEMO_PATIENT_PASSWORD = 'Patient123!';
+
 function allowDemoBootstrap() {
+  if (process.env.BOOTSTRAP_DEMO === 'false') return false;
   const allowInProd =
-    process.env.BOOTSTRAP_DEMO_ADMIN === 'true' || process.env.BOOTSTRAP_DEMO_DOCTORS === 'true';
+    process.env.BOOTSTRAP_DEMO === 'true' ||
+    process.env.BOOTSTRAP_DEMO_ADMIN === 'true' ||
+    process.env.BOOTSTRAP_DEMO_DOCTORS === 'true' ||
+    process.env.BOOTSTRAP_DEMO_PATIENTS === 'true';
   return process.env.NODE_ENV !== 'production' || allowInProd;
 }
 
@@ -112,5 +123,38 @@ export async function ensureDemoDoctors() {
   const count = await Doctor.countDocuments({ email: { $in: DEMO_DOCTOR_EMAILS } });
   if (count !== DEMO_DOCTORS.length) {
     console.warn(`[bootstrap] Expected ${DEMO_DOCTORS.length} doctors, found ${count}.`);
+  }
+}
+
+/** Demo patients shown on the login page quick-fill buttons. */
+export async function ensureDemoPatients() {
+  if (!allowDemoBootstrap()) return;
+
+  const hashed = await bcrypt.hash(DEMO_PATIENT_PASSWORD, 12);
+
+  for (const row of DEMO_PATIENTS) {
+    const email = row.email.toLowerCase().trim();
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        name: row.name,
+        email,
+        password: hashed,
+        role: 'patient',
+      });
+    } else if (user.role === 'patient') {
+      user.name = row.name;
+      await user.save();
+    }
+
+    const existing = await Patient.findOne({ user: user._id });
+    if (!existing) {
+      await Patient.create({
+        user: user._id,
+        name: row.name,
+        age: row.age,
+        gender: row.gender,
+      });
+    }
   }
 }

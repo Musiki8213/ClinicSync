@@ -1,17 +1,16 @@
 import axios from 'axios'
 
-/** Dev: same-origin `/api` (Vite proxy). Prod: set VITE_API_URL e.g. https://your-api.onrender.com/api */
+/**
+ * Dev: `/api` via Vite proxy.
+ * Vercel: `/api` via `api/[...path].js` proxy → BACKEND_URL (preferred).
+ * Optional override: VITE_API_URL for direct API calls.
+ */
 const viteApiUrl = import.meta.env.VITE_API_URL as string | undefined
 const baseURL = viteApiUrl?.replace(/\/$/, '') || '/api'
 
-if (import.meta.env.PROD && !viteApiUrl) {
-  console.warn(
-    '[ClinicSync] VITE_API_URL is unset. Auth and data requests will fail on Vercel until you add it and redeploy.'
-  )
-}
-
 const api = axios.create({
   baseURL,
+  timeout: 45_000,
 })
 
 api.interceptors.request.use((config) => {
