@@ -2,11 +2,12 @@ import axios from 'axios'
 
 /**
  * Dev: `/api` via Vite proxy.
- * Vercel: `/api` via `api/[...path].js` proxy → BACKEND_URL (preferred).
- * Optional override: VITE_API_URL for direct API calls.
+ * Vercel (experimentalServices): `/_/backend/api` hits the Express service directly.
+ * External API: set VITE_API_URL e.g. https://your-api.example.com/api
  */
 const viteApiUrl = import.meta.env.VITE_API_URL as string | undefined
-const baseURL = viteApiUrl?.replace(/\/$/, '') || '/api'
+const baseURL =
+  viteApiUrl?.replace(/\/$/, '') || (import.meta.env.PROD ? '/_/backend/api' : '/api')
 
 const api = axios.create({
   baseURL,

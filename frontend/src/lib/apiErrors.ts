@@ -23,8 +23,11 @@ export function apiErrorMessage(err: unknown, fallback = 'Try again'): string {
     }
 
     if (status === 401) return 'Invalid email or password (demo accounts must exist in the database).'
+    if (status === 405) {
+      return 'API route rejected POST (deployment routing). Redeploy the latest main branch on Vercel.'
+    }
     if (status === 502 || status === 503) {
-      return 'API not reachable from Vercel. Set BACKEND_URL to your Render service URL and redeploy.'
+      return 'API not reachable. Check MONGODB_URI on Vercel and that the backend service deployed.'
     }
 
     return `Request failed (${status})`

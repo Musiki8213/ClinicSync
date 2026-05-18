@@ -12,8 +12,5 @@
       "framework": "express"
     }
   },
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/_/backend/api/:path*" },
-    { "source": "/((?!api).*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/((?!api)(?!_/backend).*)", "destination": "/index.html" }]
 }
