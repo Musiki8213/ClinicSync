@@ -1,13 +1,15 @@
 /**
- * Proxies /api/* from the Vercel frontend to the Express API (Render, etc.).
- * Set BACKEND_URL on Vercel, e.g. https://clinicsync-api.onrender.com (no /api suffix).
+ * Proxies /api/* to the Express API.
+ * - All on Vercel: uses /_/backend on this deployment (no BACKEND_URL needed).
+ * - External API: set BACKEND_URL e.g. https://your-api.example.com
  */
 export default async function handler(req, res) {
-  const backend = process.env.BACKEND_URL?.replace(/\/$/, '');
+  const explicit = process.env.BACKEND_URL?.replace(/\/$/, '');
+  const vercelHost = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
+  const backend = explicit || (vercelHost ? `${vercelHost}/_/backend` : null);
   if (!backend) {
     return res.status(503).json({
-      message:
-        'API proxy not configured. In Vercel → Settings → Environment Variables, set BACKEND_URL to your API host (e.g. https://clinicsync-api.onrender.com), then redeploy.',
+      message: 'API proxy not configured.',
     });
   }
 
