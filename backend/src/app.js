@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { initApp } from './init.js';
 import authRoutes from './routes/authRoutes.js';
 import doctorRoutes from './routes/doctorRoutes.js';
 import patientRoutes from './routes/patientRoutes.js';
@@ -49,6 +50,15 @@ app.use(
   })
 );
 app.use(express.json());
+
+app.use(async (req, res, next) => {
+  try {
+    await initApp();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, name: 'ClinicSync API' });
